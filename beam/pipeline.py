@@ -41,10 +41,32 @@ def run(argv=None, save_main_session=True):
   pipeline_options.view_as(SetupOptions).save_main_session = save_main_session
   with beam.Pipeline(options=pipeline_options) as p:
 
-    (p | beam.io.Read(beam.io.BigQuerySource(
-        query='SELECT * FROM `aou-res-curation-test.calbach_ch_rdr_import_ehr.concept` LIMIT 1000',
-        use_standard_sql=True))
-       | beam.io.WriteToText("out.txt"))
+    # Read all of the EHR inputs.
+    ehr_inputs = {}
+    for tbl in ['person', 'measurement', 'condition_occurrence']:
+      ehr_inputs[tbl] = {}
+      for site in ['nyc_five_person', 'pitt_five_person']:
+        ehr_inputs[tbl][site] = (
+            p | f"{site}_{tbl}" >> beam.io.Read(beam.io.BigQuerySource(
+                query=f"SELECT * FROM `aou-res-curation-test.calbach_prototype.{site}_{tbl}`",
+                use_standard_sql=True))
+            )
+
+    # Merge tables across all sites.
+    combined_by_domain = {}
+    for tbl, data_by_site in ehr_inputs.items():
+      combined_by_domain[tbl] = data_by_site.values() | f"ehr merge for {tbl}" >> beam.Flatten()
+
+    # TODO:
+    #   1. Move data from person table elsewhere.
+    #   1. Row-level table transform
+    #   1. Retract participants by ID.
+    #   1. Group-by-participant transforms, e.g. remove duplicate measurements, observations
+    #   1. Generate derived tables, e.g. mapping
+
+    for domain, data in combined_by_domain.items():
+      data | f"output for {domain}" >> beam.io.WriteToText(f"{domain}-out.txt")
+
 
 if __name__ == '__main__':
   logging.getLogger().setLevel(logging.INFO)
