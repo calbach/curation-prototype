@@ -14,5 +14,4 @@ Pipeline stages:
 1. Retract participants by ID.
 1. Group-by-participant transforms, e.g. remove duplicate measurements, observations
 1. Generate derived tables, e.g. mapping
-
 Output: BigQuery OMOP CDR dataset.
