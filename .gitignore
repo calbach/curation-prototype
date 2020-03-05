@@ -1,2 +1,4 @@
-beam/__pycache__
-beam/out
+spark/output/*
+beam/output/*
+spark*jar
+__pycache__

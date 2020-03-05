@@ -43,8 +43,7 @@ class ExtractDobAsMeasurement(beam.DoFn):
       yield pvalue.TaggedOutput(self.OUTPUT_TAG_MEASUREMENT, {
           "person_id": person["person_id"],
           "measurement_concept_id": self.DOB_CONCEPT_ID,
-          "measurement_datetime": dob,
-          "measurement_value": dob
+          "measurement_datetime": dob
       })
 
     for key in ["year_of_birth", "month_of_birth", "day_of_birth", "birth_datetime"]:

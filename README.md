@@ -15,3 +15,9 @@ Pipeline stages:
 1. Group-by-participant transforms, e.g. remove duplicate measurements, observations
 1. Generate derived tables, e.g. mapping
 Output: BigQuery OMOP CDR dataset.
+
+# Test data setup
+
+```
+./load-test-tables.sh [path/to/curation/repo/root]
+```
